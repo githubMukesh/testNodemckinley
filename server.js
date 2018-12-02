@@ -1,0 +1,55 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const dbConfig = require('./config/database.config.js');
+const mongoose = require('mongoose');
+const cors =  require('cors');
+
+const router = require('./router/router.js');
+
+
+mongoose.Promise = global.Promise;
+// create express app
+const app = express();
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }))
+
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
+
+// cors enabled
+app.use(cors());
+
+// router use 
+ app.use('/',router);
+
+
+ // error handling
+ app.use((err,req,res,next)=>{
+   res.status(422).send({error: err.message});
+ });
+
+// Connecting to the database
+// Connecting to the database
+mongoose.connect(dbConfig.url, {
+    useNewUrlParser: true
+}).then(() => {
+    console.log("Successfully connected to the database"); 
+    console.log("databse connected ");   
+}).catch(err => {
+    console.log('Could not connect to the database. Exiting now...', err);
+    process.exit();
+});
+
+
+
+
+// define a simple route
+app.get('/', (req, res) => {
+    res.json({"message": "Welcome to EasyNotes application. Take notes quickly. Organize and keep track of all your notes."});
+});
+
+// listen for requests
+app.listen(process.env.port || 4000 , () => {
+    console.log("Server is listening on port 3000");
+});
